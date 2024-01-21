@@ -1,4 +1,3 @@
-Example prompt:
 -API documents of ProductService, VoucherService, CartService, CheckoutService
 1.ProductService Rest API swagger: [START OF FILE] openapi: 3.0.0
 info:
