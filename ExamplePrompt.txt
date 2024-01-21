@@ -1,0 +1,205 @@
+Example prompt:
+-API documents of ProductService, VoucherService, CartService, CheckoutService
+1.ProductService Rest API swagger: [START OF FILE] openapi: 3.0.0
+info:
+  title: ProductService API
+  description: API for managing products
+  version: 1.0.0
+
+paths:
+  /products/{productId}:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        description: ID of the product to retrieve
+        schema:
+          type: integer
+    get:
+      summary: Retrieve a product by ID
+      operationId: getProduct
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                productId: 123
+                productName: "Sample Product"
+                price: 19.99
+        '404':
+          description: Product not found [END OF FILE]
+2.VoucherService Rest API swagger: [START OF FILE]openapi: 3.0.0
+info:
+  title: VoucherService API
+  description: API for managing vouchers
+  version: 1.0.0
+
+paths:
+  /vouchers/{voucherId}:
+    parameters:
+      - name: voucherId
+        in: path
+        required: true
+        description: ID of the voucher to retrieve
+        schema:
+          type: string
+    get:
+      summary: Retrieve a voucher by ID
+      operationId: getVoucher
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                voucherId: "ABC123"
+                discountPercent: 15
+                expiryDate: "2024-12-31"
+        '404':
+          description: Voucher not found[END OF FILE]
+3.CartService REST API swagger: [START OF FILE]openapi: 3.0.0
+info:
+  title: CartService API
+  description: API for managing shopping carts
+  version: 1.0.0
+
+paths:
+  /cart/confirm:
+    post:
+      summary: Confirm the shopping cart
+      operationId: confirmCart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: string
+                      count:
+                        type: integer
+                        minimum: 1
+                vouchers:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - products
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                message: "Cart confirmed successfully"
+        '400':
+          description: Bad request
+        '404':
+          description: Product not found or invalid voucher[END OF FILE]
+4.CheckoutService Rest API swagger: [START OF FILE]openapi: 3.0.0
+info:
+  title: CheckoutService API
+  description: API for processing checkouts
+  version: 1.0.0
+
+paths:
+  /checkout:
+    post:
+      summary: Process the checkout
+      operationId: checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart:
+                  type: object
+                  properties:
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          productId:
+                            type: string
+                          productName:
+                            type: string
+                          price:
+                            type: string
+                          count:
+                            type: integer
+                  required:
+                    - items
+                  vouchers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        voucherId:
+                          type: string
+                        amount:
+                          type: string
+                        available:
+                          type: boolean
+              required:
+                - cart
+                - total
+                - vouchers
+                - amount
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                message: "Checkout successful"
+        '400':
+          description: Bad request[END OF FILE]
+-Design for /cart/confirm endpoint is as below:
+1.Upstream call to /cart/confirm
+2.CartService call to ProductService with logic as below:
+for each product in products
+call to /products/{productId} with product.productId
+3..CartService call to VoucherService with logic as below:
+for each voucher in vouchers
+call to /vouchers/{voucherId} with voucher.voucherId
+4.CartService call to CheckoutService with logic as below:
+for each product in products
+create an object in cart.items with these rules:
+productId = product.productId
+productName = productName
+price = price from /products/{productId}
+count = product.count
+
+for each voucher in vouchers
+create an object in cart.vouchers with these rules:
+voucherId = voucher.voucherId 
+amount = amount from /vouchers/{voucherId}
+available = check if expiryDate is after the current date
+
+total = (each item price *count) - (sum of available vouchers amount)
+
+Generate blackbox test cases with detailed http stubs of ProductService, VoucherService and CheckoutService to test the full flow of /cart/confirm endpoint. Stub data must be in Wiremock format and leverage "jsonBody" if needed. Stub for POST requests must include body. 
+[IMPORTANT]  Response in this json format:
+{
+  "testcases":[
+    {
+      "name": "String",
+      "stubForProductService": (stub),
+      "stubForVoucherService": (stub) as String,
+      "stubForCheckoutService": (stub) as String,
+      "inputRequest": (input data) as String,
+      "expectedResponse": (expected data) as String
+    }
+  ]
+}
+[IMPORTANT]

@@ -1,0 +1,149 @@
+{
+  "testcases": [
+    {
+      "name": "Valid Cart Confirmation with Vouchers",
+      "stubForProductService": {
+        "request": {
+          "method": "GET",
+          "urlPattern": "/products/123"
+        },
+        "response": {
+          "status": 200,
+          "jsonBody": {
+            "productId": 123,
+            "productName": "Sample Product",
+            "price": 19.99
+          }
+        }
+      },
+      "stubForVoucherService": {
+        "request": {
+          "method": "GET",
+          "urlPattern": "/vouchers/ABC123"
+        },
+        "response": {
+          "status": 200,
+          "jsonBody": {
+            "voucherId": "ABC123",
+            "discountPercent": 15,
+            "expiryDate": "2024-12-31"
+          }
+        }
+      },
+      "stubForCheckoutService": {
+        "request": {
+          "method": "POST",
+          "url": "/checkout",
+          "jsonBody": {
+            "cart": {
+              "items": [
+                {
+                  "productId": "123",
+                  "productName": "Sample Product",
+                  "price": "19.99",
+                  "count": 2
+                }
+              ],
+              "vouchers": [
+                {
+                  "voucherId": "ABC123",
+                  "amount": "15",
+                  "available": true
+                }
+              ]
+            },
+            "total": 24.98
+          }
+        },
+        "response": {
+          "status": 200,
+          "jsonBody": {
+            "message": "Checkout successful"
+          }
+        }
+      },
+      "inputRequest": {
+        "products": [
+          {
+            "productId": "123",
+            "count": 2
+          }
+        ],
+        "vouchers": ["ABC123"]
+      },
+      "expectedResponse": {
+        "message": "Cart confirmed successfully"
+      }
+    },
+    {
+      "name": "Invalid Product ID in Cart",
+      "stubForProductService": {
+        "request": {
+          "method": "GET",
+          "urlPattern": "/products/999"
+        },
+        "response": {
+          "status": 404
+        }
+      },
+      "stubForVoucherService": {},
+      "stubForCheckoutService": {},
+      "inputRequest": {
+        "products": [
+          {
+            "productId": "999",
+            "count": 1
+          }
+        ],
+        "vouchers": []
+      },
+      "expectedResponse": {
+        "error": "Product not found"
+      }
+    },
+    {
+      "name": "Expired Voucher in Cart",
+      "stubForProductService": {
+        "request": {
+          "method": "GET",
+          "urlPattern": "/products/456"
+        },
+        "response": {
+          "status": 200,
+          "jsonBody": {
+            "productId": 456,
+            "productName": "Expired Product",
+            "price": 29.99
+          }
+        }
+      },
+      "stubForVoucherService": {
+        "request": {
+          "method": "GET",
+          "urlPattern": "/vouchers/XYZ789"
+        },
+        "response": {
+          "status": 200,
+          "jsonBody": {
+            "voucherId": "XYZ789",
+            "discountPercent": 20,
+            "expiryDate": "2022-01-01"
+          }
+        }
+      },
+      "stubForCheckoutService": {},
+      "inputRequest": {
+        "products": [
+          {
+            "productId": "456",
+            "count": 1
+          }
+        ],
+        "vouchers": ["XYZ789"]
+      },
+      "expectedResponse": {
+        "error": "Voucher expired"
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Test Case Generator API
+  version: 1.0.0
+paths:
+  /generateTestCase:
+    post:
+      summary: Generate Test Case
+      description: Generates a test case for a specified endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                swaggers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      serviceName:
+                        type: string
+                        description: Name of the Swagger service
+                      content:
+                        type: string
+                        description: Content of the Swagger definition
+                    required:
+                      - serviceName
+                      - content
+                endpointToTest:
+                  type: string
+                  description: Endpoint to generate a test case for
+                mappingRule:
+                  type: string
+                  description: Mapping rule for generating a test case
+              example:
+                swaggers:
+                  - serviceName: "ProductService"
+                    content: "{swagger definition for ProductService}"
+                endpointToTest: "/api/products"
+                mappingRule: "exampleMappingRule"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  testcases:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the generated test case
+                        stubForProductService:
+                          type: object
+                          description: Stub configuration for ProductService
+                          example: {"status": 200, "body": {"message": "Success"}}
+                        stubForVoucherService:
+                          type: object
+                          description: Stub configuration for VoucherService
+                          example: {"status": 404, "body": {"error": "Voucher not found"}}
+                        stubForCheckoutService:
+                          type: object
+                          description: Stub configuration for CheckoutService
+                          example: {"status": 500, "body": {"error": "Internal Server Error"}}
+                        inputRequest:
+                          type: object
+                          description: Input request for the test case
+                          example: {"method": "GET", "headers": {"Authorization": "Bearer token"}}
+                        expectedResponse:
+                          type: object
+                          description: Expected response for the test case
+                          example: {"status": 200, "body": {"data": {}}}
+
+

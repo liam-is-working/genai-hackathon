@@ -1,0 +1,21 @@
+-API documents of {{ serviceNames }}
+    {% for swagger in swaggers %}
+        {{ loop.index }}.{{ swagger.serviceName }} Rest API swagger: [START OF FILE] {{ swagger.content }} [END OF FILE];
+    {% endfor %}
+-Design for {{ endpointToTest }} endpoint is as below:
+[START OF FILE] {{ mappingRule }} [END OF FILE]
+Generate blackbox test cases with detailed http stubs of {{ serviceNames }} to test the full flow of {{ endpointToTest }} endpoint. Stub data must be in Wiremock format and leverage "jsonBody" if needed. Stub for POST requests must include body.
+[IMPORTANT]  Response must be in this json format:
+{
+  "testcases":[
+    {
+      "name": "String",
+      {% for name in serviceNames %}
+      "stubFor{{ name }}": (stub) {% if not loop.last %},{% endif %}
+      {% endfor %}
+      "inputRequest": (input data),
+      "expectedResponse": (expected data)
+    }
+  ]
+}
+[IMPORTANT]
